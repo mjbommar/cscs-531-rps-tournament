@@ -17,15 +17,15 @@ class JonesPaper(Player):
         Constructor
         '''
         # Set name and number, then call parent constructor.
-        name = "Smith"
+        name = "Jones"
         number = "1"
         super(JonesPaper, self).__init__(name, number)
 
     def makeYourMove(self):
         '''
-        Always play rock.
+        Always play paper.
         '''
-        return 'R'
+        return 'P'
 
 if __name__ == "__main__":
     p0 = JonesPaper()
