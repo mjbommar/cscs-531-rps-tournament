@@ -30,7 +30,6 @@ def load_entrants(path):
 
         # Get module name
         module_name = os.path.basename(file_name).replace(".py", "")
-        print(module_name)
 
         # Import the module
         __import__(module_name, globals(), locals(), ['*'])
@@ -52,7 +51,3 @@ def load_entrants(path):
     # Return the player list
     return player_list
 
-
-if __name__ == '__main__':
-    player_list = load_entrants('C:/Users/mjbommar/workspace/cscs-531-rps-tournament/entrants')
-    print(player_list)
