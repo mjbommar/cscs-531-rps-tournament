@@ -21,6 +21,9 @@ class Player(object):
     tournament.
     '''
 
+    # Tournament context
+    tournament = None
+
     # Initialize the player's total score to 0.
     total_score = 0.0
 
@@ -84,6 +87,9 @@ class Referee(object):
         6. Informing the players of the outcome
     '''
 
+    # Tournament context
+    tournament = None
+
     # Pool of possible players
     player_pool = []
 
@@ -102,16 +108,6 @@ class Referee(object):
         '''
         # Set the player pool
         self.player_pool = player_pool
-
-    def choose_pair(self):
-        '''
-        Return a pair of players from the current pool.
-        '''
-        # Sample two random players without replacement
-        player_sample = random.sample(self.player_pool, 2)
-
-        # Return them in a tuple
-        return (player_sample[0], player_sample[1])
 
     def run_engagement(self, player_a, player_b):
         '''
@@ -177,3 +173,9 @@ class Referee(object):
 
         # And then record the game history.
         #TODO: Record game history using OOP data record.
+        return {'player_a': player_a.identifyYourself(),
+                'player_a_throw': throw_a,
+                'player_a_score': score_a,
+                'player_b': player_b.identifyYourself(),
+                'player_b_throw': throw_b,
+                'player_b_score': 1.0 - score_a}

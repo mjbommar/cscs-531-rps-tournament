@@ -11,20 +11,16 @@ import random
 
 # Import agents
 from edu.umich.cscs.rps.agents import Player, Referee
-from edu.umich.cscs.rps.tournament import load_entrants
+from edu.umich.cscs.rps.tournament import Tournament
 
 class TournamentTest(unittest.TestCase):
     '''
     Test out a tournament.
     '''
-    
-    def setUp(self):
-        # Setup the player pool
-        self.player_pool = load_entrants('/users/mjbommar/workspace/cscs-531-rps-tournament/entrants')
 
-        # Setup the referee
-        # Create referee
-        self.referee = Referee(self.player_pool)
+    def setUp(self):
+        # Setup the tournament
+        self.tournament = Tournament('/users/mjbommar/workspace/cscs-531-rps-tournament/entrants')
 
     def tearDown(self):
         pass
@@ -36,43 +32,32 @@ class TournamentTest(unittest.TestCase):
         # Initialize coverage sampling
         players_seen = set()
 
-        # Sample a few pairs.
-        for i in range(100):
-            # Sample
-            players_chosen = self.referee.choose_pair()
-            #print("Matchup between {0} and {1}".format(players_chosen[0],
-            #                                           players_chosen[1]))
+        # Pass
+        self.tournament.run_tournament()
 
-            # Update
-            players_seen.update(players_chosen)
+        # Iterate over engagement history
+        for match in self.tournament.get_engagement_history():
+            players_seen.add(match['player_a'])
+            players_seen.add(match['player_b'])
 
         # Make sure we got the full count.
-        self.assertEqual(len(self.player_pool), len(players_seen))
+        self.assertEqual(len(self.tournament.player_pool), len(players_seen))
 
-    def testEngagement(self):
+    def testTournament(self):
         '''
         Test that our engagement logic is working properly.
         '''
-        # Number of engagements
-        num_engagements = 10
+        # Pass
+        self.tournament.run_tournament()
 
-        # Sample a few pairs.
-        for i in range(num_engagements):
-            # Sample players
-            players_chosen = self.referee.choose_pair()
-
-            # Run the engagement
-            self.referee.run_engagement(players_chosen[0],
-                                        players_chosen[1])
-
-        # Test on names
-        for player in self.player_pool:
-            if player.identifyYourself() == "Jones_1":
-                self.assertEqual(player.getTotalScore(), float(num_engagements))
-            elif player.identifyYourself() == "Smith_1":
-                self.assertEqual(player.getTotalScore(), 0.0)
-
-
+        # All test players should have score equal to num_engagements.
+        for player in self.tournament.player_pool:
+            self.assertEqual(player.getTotalScore(),
+                             float(self.tournament.engagements_per_bout))
+        
+        # Print match history
+        print(self.tournament.get_engagement_history())
+        
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()
