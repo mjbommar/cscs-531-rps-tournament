@@ -3,14 +3,13 @@
 @author: mjbommar
 
 '''
-import random
 
 from edu.umich.cscs.rps.agents import Player
 
 
-class SmithRock(Player):
+class JonesPaper(Player):
     '''
-    Sample player for Smith; always plays rock.
+    Sample player for Jones; always plays paper. 
     '''
 
     def __init__(self):
@@ -18,23 +17,17 @@ class SmithRock(Player):
         Constructor
         '''
         # Set name and number, then call parent constructor.
-        name = "Smith"
+        name = "Jones"
         number = "1"
-        super(SmithRock, self).__init__(name, number)
+        super(JonesPaper, self).__init__(name, number)
 
     def makeYourMove(self):
         '''
-        Always play rock.
+        Always play paper.
         '''
-        return 'R'
-
-
-
-
-
-
+        return 'P'
 
 if __name__ == "__main__":
-    p0 = SmithRock()
+    p0 = JonesPaper()
     print(p0.identifyYourself())
     print(p0.makeYourMove())

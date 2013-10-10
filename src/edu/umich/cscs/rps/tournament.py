@@ -83,8 +83,10 @@ class Tournament(object):
 
         # Load all the files in path
         for file_name in os.listdir(path):
+            print "File {0} ============".format (file_name)
             # Skip non-py files
             if not file_name.lower().endswith('.py'):
+                print "   skipping..."
                 continue
 
             # Get module name
@@ -95,11 +97,12 @@ class Tournament(object):
 
             # Now iterate over module contents.
             for object_name in dir(sys.modules[module_name]):
+                #print "-->object {0}, module {1}:".format (object_name, module_name )
                 object_value = getattr(sys.modules[module_name], object_name)
                 try:
                     # Instantiate.
                     object_instance = object_value()
-
+                    #print "--> instance {0} ".format ( object_instance )
                     # If the variable matches the Player class type, include.
                     if isinstance(object_instance,
                                   edu.umich.cscs.rps.agents.Player):
@@ -108,6 +111,7 @@ class Tournament(object):
                         # Add to list
                         player_list.append(object_instance)
                 except Exception, E:
+                    #print "--> not added to player list"
                     pass
 
         # Return the player list
@@ -118,7 +122,16 @@ class Tournament(object):
         Return the engagement history.
         '''
         return self.engagement_history
-
+        
+    def printAllTotalScores (self):
+        '''
+        print total scores for all entrants.
+        TODO: sort
+        '''
+        for p in self.player_pool :
+            print( p )
+        
+        
     def run_tournament(self):
         '''
         Run a tournament by loading entrants from a given path and using
@@ -145,3 +158,19 @@ class Tournament(object):
         '''
         return "Tournament (player_pool={0}, match_count={1})"\
             .format(len(self.player_pool), len(self.engagement_history))
+            
+            
+###########################################################
+#
+#
+if __name__ == "__main__":
+    #import sys;sys.argv = ['', 'Test.testName']
+  
+    tourney = Tournament( entrant_path='entrants1', engagements_per_bout=51)
+    print "\nThe players:"
+    tourney.printAllTotalScores()
+    tourney.run_tournament()
+    print "\nFinal scores:"
+    tourney.printAllTotalScores ()
+
+    print "All done."
