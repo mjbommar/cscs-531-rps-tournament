@@ -109,41 +109,6 @@ class RefereeTest(unittest.TestCase):
         '''
         pass
 
-    def testPairCoverage(self):
-        '''
-        Test that our pair selection is working properly.
-        '''
-        # Initialize coverage sampling
-        players_seen = set()
-
-        # Sample a few pairs.
-        for i in range(100):
-            # Sample
-            players_chosen = self.referee.choose_pair()
-            #print("Matchup between {0} and {1}".format(players_chosen[0],
-            #                                           players_chosen[1]))
-
-            # Update
-            players_seen.update(players_chosen)
-
-        # Make sure we got the full count.
-        self.assertEqual(len(self.player_pool), len(players_seen))
-
-    def testEngagement(self):
-        '''
-        Test that our engagement logic is working properly.
-        '''
-        # Sample a few pairs.
-        for i in range(10):
-            # Sample players
-            players_chosen = self.referee.choose_pair()
-
-            # Run the engagement
-            self.referee.run_engagement(players_chosen[0],
-                                        players_chosen[1])
-
-        for player in self.player_pool:
-            print(player)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

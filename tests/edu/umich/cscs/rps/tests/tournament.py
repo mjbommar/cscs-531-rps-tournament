@@ -20,7 +20,7 @@ class TournamentTest(unittest.TestCase):
 
     def setUp(self):
         # Setup the tournament
-        self.tournament = Tournament('/users/mjbommar/workspace/cscs-531-rps-tournament/entrants')
+        self.tournament = Tournament('./entrants/')
 
     def tearDown(self):
         pass
@@ -56,7 +56,7 @@ class TournamentTest(unittest.TestCase):
                              float(self.tournament.engagements_per_bout))
         
         # Print match history
-        print(self.tournament.get_engagement_history())
+        #print(self.tournament.get_engagement_history())
         
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
