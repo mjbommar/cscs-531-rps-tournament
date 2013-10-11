@@ -9,6 +9,8 @@ This module defines the agents in our Rock-Paper-Scissors (RPS) world:
 
 # Import standard libraries
 import random
+import tournament
+from tournament import GameRecord
 
 
 class Player(object):
@@ -173,9 +175,10 @@ class Referee(object):
 
         # And then record the game history.
         #TODO: Record game history using OOP data record.
-        return {'player_a': player_a.identifyYourself(),
-                'player_a_throw': throw_a,
-                'player_a_score': score_a,
-                'player_b': player_b.identifyYourself(),
-                'player_b_throw': throw_b,
-                'player_b_score': 1.0 - score_a}
+        #return {'player_a': player_a.identifyYourself(),
+        #       'player_a_throw': throw_a,
+        #\\       'player_a_score': score_a,
+        ##3       'player_b': player_b.identifyYourself(),
+        #3       'player_b_throw': throw_b,
+        #      'player_b_score': 1.0 - score_a}
+        return ( [ GameRecord( player_a.identifyYourself(), throw_a, score_a, player_b.identifyYourself(), throw_b, 1 - score_a), GameRecord( player_b.identifyYourself(), throw_b, 1 - score_a, player_a.identifyYourself(), throw_a, score_a) ] )
