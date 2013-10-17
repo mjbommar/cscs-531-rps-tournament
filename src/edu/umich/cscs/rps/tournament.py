@@ -13,36 +13,10 @@ from operator import itemgetter, attrgetter
 # Load our agents module
 import edu.umich.cscs.rps.agents
 
-
-
-class GameRecord(object):
-    '''
-    This is the record of a single engagement
-    To make lookujp faster, store tro reords per engagment
-    '''
-
-    def __init__(self, aNameId, aMove, aScore, bNameId,bMove, bScore):
-        '''
-        Constructor
-        '''
-        self.aNameId = aNameId          # player pointer
-        self.aMove = aMove
-        self.aScore = aScore
-        self.bNameId  = bNameId
-        self.bMove = bMove
-        self.bScore  = bScore
-
-
-    def __repr__(self):
-        '''
-        String representation of the object
-        '''
-        return "GameRecord(aNameId={0}, aMove={1}, aScore={2}, bNameId={3}, bMove={4}, outcome={4})".format(\
-                     self.aNameId, self.aMove, self.aScore, self.bNameId, self.bMove, self.bScore)
-
 ################################################################
 #
 ##############################################################
+
 
 class Tournament(object):
     '''
@@ -56,14 +30,14 @@ class Tournament(object):
     engagement_history = []
     rrthistories = {}
 
-    def __init__(self, entrant_path='entrants', engagements_per_bout=21, numRRTs=11):
+    def __init__(self, entrant_path='entrants', engagements_per_bout=21,
+                 numRRTs=11):
         '''
         Constructor
         '''
         # Set parameters
         self.engagements_per_bout = engagements_per_bout
         self.numRRTs = numRRTs
-
 
         # Load players
         self.player_pool = self.load_entrants(entrant_path)
@@ -87,6 +61,17 @@ class Tournament(object):
         # Get all pairs
         all_pairs = [item for item in \
                         itertools.combinations(self.player_pool, 2)]
+
+        # Now remove pairs that are from the same player.
+        bad_pairs = []
+
+        for pair in all_pairs:
+            player_a = pair[0].identifyYourself().split("_")[0].strip()
+            player_b = pair[1].identifyYourself().split("_")[0].strip()
+            if player_a == player_b:
+                bad_pairs.append(pair)
+
+        all_pairs = [pair for pair in all_pairs if pair not in bad_pairs]
 
         # Shuffle the list in place
         random.shuffle(all_pairs)
@@ -117,7 +102,7 @@ class Tournament(object):
 
         # Load all the files in path
         for file_name in os.listdir(path):
-            print "File {0} ============".format (file_name)
+            print("File {0} ============".format(file_name))
             # Skip non-py files
             if not file_name.lower().endswith('.py'):
                 print "   skipping..."
@@ -131,12 +116,12 @@ class Tournament(object):
 
             # Now iterate over module contents.
             for object_name in dir(sys.modules[module_name]):
-                #print "-->object {0}, module {1}:".format (object_name, module_name )
+                # print "-->object {0}, module {1}:".format (object_name, module_name )
                 object_value = getattr(sys.modules[module_name], object_name)
                 try:
                     # Instantiate.
                     object_instance = object_value()
-                    #print "--> instance {0} ".format ( object_instance )
+                    # print "--> instance {0} ".format ( object_instance )
                     # If the variable matches the Player class type, include.
                     if isinstance(object_instance,
                                   edu.umich.cscs.rps.agents.Player):
@@ -145,7 +130,7 @@ class Tournament(object):
                         # Add to list
                         player_list.append(object_instance)
                 except Exception, E:
-                    #print "--> not added to player list"
+                    # print "--> not added to player list"
                     pass
 
         # Return the player list
@@ -157,58 +142,58 @@ class Tournament(object):
         '''
         return self.engagement_history
 
-
     def get_rrthistories(self):
         '''
         Return the
         '''
         return self.rrthistories
 
-    def printAllTotalScores (self):
+    def printAllTotalScores(self):
         '''
         print total scores for all entrants.
         TODO: sort ex
         >>> from operator import itemgetter, attrgetter
         >>> sorted(student_objects, key=attrgetter('age'))
         '''
-        #for p in self.player_pool :
-        for p in sorted( self.player_pool, key=attrgetter('total_score') ):
-            print( p )
+        # for p in self.player_pool :
+        for p in sorted(self.player_pool, key=attrgetter('total_score')):
+            print(p)
 
+    def run_bout(self, player_a, player_b):
+        '''
+        Run a single bout, which is one or more engagements.
+        '''
+        # Run the bout
+        for i in range(self.engagements_per_bout):
+            '''
+            Run the engagement and record the outcome, a
+            list of two GameRecord objects so each player can be a
+            '''
+            outcome = self.referee.run_engagement(player_a, player_b)
+            self.engagement_history.extend(outcome)
 
     def run_tournament(self):
         '''
         Run a tournament by loading entrants from a given path and using
         the specified tournament strategy.
-        numRRTs = numround robin tiurbnanents. each one gets an
-          engagenent histotry
+        numRRTs = number of round robin tournaments. each one gets an
+          engagement history
         '''
 
-
-        for rrt in range(  self.numRRTs ):
-            print "rrt {0} of {1}".format( rrt,  self.numRRTs )
+        for rrt in range(self.numRRTs):
+            print "rrt {0} of {1}".format(rrt, self.numRRTs)
             self.engagement_history = []
 
             # Get a round robin pair list.
             pair_sequence = self.get_round_robin_pairs()
 
             # Iterate over all pairs
-            for pair in pair_sequence:
+            for player_a, player_b in pair_sequence:
                 # Get players
-                player_a, player_b = pair
+                self.run_bout(player_a, player_b)
 
-                # Run the bout
-                for i in range(self.engagements_per_bout):
-                    # Run the engagement and record the outcome, a
-                    #list of two gamercord objects so ch player can be a,
-                    outcome = self.referee.run_engagement(player_a, player_b)
-                    self.engagement_history.extend(outcome)
-
-
-            # round roin is over, store historry keye by rrt numbrr
+            # Round robin is over, store history key by RTT number
             self.rrthistories[rrt] = self.engagement_history
-
-
 
     def __repr__(self):
         '''
@@ -219,7 +204,7 @@ class Tournament(object):
 
 
 # a function!
-def processCmdLineArgs( args ):
+def processCmdLineArgs(args):
     # Process command line arguments of the form
         #   parName=value | -h | --help
     epath = 'entrants/'
@@ -233,15 +218,15 @@ def processCmdLineArgs( args ):
         arg = arg.split('=')
         name = arg[0]
         value = arg[1]
-        #print  "arg='%s' name='%s'  value='%s'\n" % (arg, name, value )
+        # print  "arg='%s' name='%s'  value='%s'\n" % (arg, name, value )
         if name == 'numRRTs' or name == 'N':
             numRRTs = int(value)
         elif name == 'ep' or name == 'entrant_path':
             epath = value
         elif name == 'epb' or name == 'engagements_per_bout':
-            epb = int ( value )
+            epb = int (value)
         else:
-            print  " Unknown name in arg='%s'name='%s' value='%s'\n" % (arg, name, value )
+            print  " Unknown name in arg='%s'name='%s' value='%s'\n" % (arg, name, value)
             help()
     return [ epath, epb, numRRTs ]
 
@@ -256,24 +241,21 @@ def help():
 #
 if __name__ == "__main__":
 
-    #print  str( sys.argv )   # for cmd line parameters
-    parlist  = processCmdLineArgs( sys.argv[1:] )
+    # print  str( sys.argv )   # for cmd line parameters
+    parlist = processCmdLineArgs(sys.argv[1:])
     # parlist has entrantpath, eng/bout and numrrts
-    epath  = parlist[0]
+    epath = parlist[0]
     epb = parlist[1]
     rrts = parlist[2]
 
-    tourney = Tournament( entrant_path=epath, engagements_per_bout=epb, numRRTs=rrts)
+    tourney = Tournament(entrant_path=epath, engagements_per_bout=epb,
+                         numRRTs=rrts)
 
-    print "\nThe players:"
+    print("\nThe players:")
     tourney.printAllTotalScores()
     tourney.run_tournament()
 
-    #print "\nfull game history:"
-    #for e in tourney.get_engagement_history():
-    #    print e
+    print("\nFinal scores:")
+    tourney.printAllTotalScores()
 
-    print "\nFinal scores:"
-    tourney.printAllTotalScores ()
-
-    print "All done."
+    print("All done.")
