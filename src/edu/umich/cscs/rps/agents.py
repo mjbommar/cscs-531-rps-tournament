@@ -8,9 +8,7 @@ This module defines the agents in our Rock-Paper-Scissors (RPS) world:
 '''
 
 # Import standard libraries
-import random
-import tournament
-from tournament import GameRecord
+from edu.umich.cscs.rps.data import GameRecord
 
 
 class Player(object):
@@ -125,8 +123,8 @@ class Referee(object):
         player_b.yourOpponentsId(name_a)
 
         #  Ask them for their throws.
-        throw_a = player_a.makeYourMove()
-        throw_b = player_b.makeYourMove()
+        throw_a = player_a.makeYourMove().strip().upper()
+        throw_b = player_b.makeYourMove().strip().upper()
 
         # Check that we got valid throws back.
         if throw_a not in ['R', 'P', 'S']:
@@ -174,11 +172,7 @@ class Referee(object):
         player_b.yourScoreWas(1.0 - score_a)
 
         # And then record the game history.
-        #TODO: Record game history using OOP data record.
-        #return {'player_a': player_a.identifyYourself(),
-        #       'player_a_throw': throw_a,
-        #\\       'player_a_score': score_a,
-        ##3       'player_b': player_b.identifyYourself(),
-        #3       'player_b_throw': throw_b,
-        #      'player_b_score': 1.0 - score_a}
-        return ( [ GameRecord( player_a.identifyYourself(), throw_a, score_a, player_b.identifyYourself(), throw_b, 1 - score_a), GameRecord( player_b.identifyYourself(), throw_b, 1 - score_a, player_a.identifyYourself(), throw_a, score_a) ] )
+        return ([GameRecord(player_a.identifyYourself(), throw_a, score_a,
+                            player_b.identifyYourself(), throw_b, 1 - score_a),
+                 GameRecord(player_b.identifyYourself(), throw_b, 1 - score_a,
+                            player_a.identifyYourself(), throw_a, score_a)])
