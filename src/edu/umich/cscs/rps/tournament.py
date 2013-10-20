@@ -231,10 +231,12 @@ def processCmdLineArgs(args):
             epath = value
         elif name == 'epb' or name == 'engagements_per_bout':
             epb = int (value)
+        elif name == 'ps' or name == 'play_self':
+            play_self = bool(value)
         else:
             print  " Unknown name in arg='%s'name='%s' value='%s'\n" % (arg, name, value)
             help()
-    return [ epath, epb, numRRTs ]
+    return [ epath, epb, numRRTs, play_self ]
 
 
 def help():
@@ -253,9 +255,10 @@ if __name__ == "__main__":
     epath = parlist[0]
     epb = parlist[1]
     rrts = parlist[2]
+    play_self = parlist[3]
 
     tourney = Tournament(entrant_path=epath, engagements_per_bout=epb,
-                         numRRTs=rrts)
+                         numRRTs=rrts, play_self=play_self)
 
     print("\nThe players:")
     tourney.printAllTotalScores()
