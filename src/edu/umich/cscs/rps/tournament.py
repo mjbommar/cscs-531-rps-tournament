@@ -30,14 +30,18 @@ class Tournament(object):
     engagement_history = []
     rrthistories = {}
 
+    # Can you play your own agents?
+    play_self = False
+
     def __init__(self, entrant_path='entrants', engagements_per_bout=21,
-                 numRRTs=11):
+                 numRRTs=11, play_self=False):
         '''
         Constructor
         '''
         # Set parameters
         self.engagements_per_bout = engagements_per_bout
         self.numRRTs = numRRTs
+        self.play_self = play_self
 
         # Load players
         self.player_pool = self.load_entrants(entrant_path)
@@ -62,16 +66,18 @@ class Tournament(object):
         all_pairs = [item for item in \
                         itertools.combinations(self.player_pool, 2)]
 
-        # Now remove pairs that are from the same player.
-        bad_pairs = []
+        # Check if we should remove self plays
+        if not self.play_self:
+            # Now remove pairs that are from the same player.
+            bad_pairs = []
 
-        for pair in all_pairs:
-            player_a = pair[0].identifyYourself().split("_")[0].strip()
-            player_b = pair[1].identifyYourself().split("_")[0].strip()
-            if player_a == player_b:
-                bad_pairs.append(pair)
+            for pair in all_pairs:
+                player_a = pair[0].identifyYourself().split("_")[0].strip()
+                player_b = pair[1].identifyYourself().split("_")[0].strip()
+                if player_a == player_b:
+                    bad_pairs.append(pair)
 
-        all_pairs = [pair for pair in all_pairs if pair not in bad_pairs]
+            all_pairs = [pair for pair in all_pairs if pair not in bad_pairs]
 
         # Shuffle the list in place
         random.shuffle(all_pairs)
