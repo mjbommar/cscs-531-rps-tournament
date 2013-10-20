@@ -216,6 +216,8 @@ def processCmdLineArgs(args):
     epath = 'entrants/'
     epb = 21
     numRRTs = 5
+    play_self = False
+    
     for arg in args:
         if arg == '-h' or arg == '--help':
             help()
