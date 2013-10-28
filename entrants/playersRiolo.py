@@ -9,189 +9,111 @@ import random
 
 from edu.umich.cscs.rps.agents import Player
 
-
-
-
-class  PlayerR( Player ):
-    def __init__( self ):
-        # Set name and number, then call parent constructor.
-        name = "riolo"
-        number = "3"
-        super(PlayerR, self).__init__(name, number)
-
-        #super ( PlayerR, self ).__init__( name, idnumber )
-        #Player.__init__( self, name, idnumber )
-        self.strategy = [ 0.333, 0.667 ]
-
-    def makeYourMove (self):
-        r = random.random()    # uniform( 0.0, 1.0 ]
-        if r < self.strategy[0]:
-            return 'R'
-        elif r < self.strategy[1]:
-            return 'P'
-        else:
-            return 'S'
-
-# <codecell>
-
-
-class  PlayerR1( Player ):
-    '''
-
-    '''
-    def __init__( self ):
-        # Set name and number, then call parent constructor.
-        name = "riolo"
-        number = "0"
-        super(PlayerR1, self).__init__(name, number)
-
-        #super ( PlayerR, self ).__init__( name, idnumber )
-        #Player.__init__( self, name, idnumber )
-        self.strategy = [ 0.05, 0.10 ]
-
-    def makeYourMove (self):
-        r = random.random()    # uniform( 0.0, 1.0 ]
-        if r < self.strategy[0]:
-            return 'R'
-        elif r < self.strategy[1]:
-            return 'P'
-        else:
-            return 'S'
-
-
-
-class  PlayerR2( Player ):
-    def __init__( self ):
-        # Set name and number, then call parent constructor.
-        name = "riolo"
-        number = "2"
-        super(PlayerR2, self).__init__(name, number)
-        self.strategy = [ 0.2, 0.50 ]
-        print "player rr2 ini:"
-
-    def makeYourMove (self):
-        r = random.random()    # uniform( 0.0, 1.0 ]
-        if r < self.strategy[0]:
-            return 'R'
-        elif r < self.strategy[1]:
-            return 'P'
-        else:
-            return 'S'
-
-
-class  PlayerR3( Player ):
-    def __init__( self ):
-        # Set name and number, then call parent constructor.
-        name = "riolo"
-        number = "3"
-        super(PlayerR3, self).__init__(name,number)
-        # set default and current strat
-        self.defaultstrategy = [ 0.2, 0.50 ]
-        self.strategy = [ 0.2, 0.50 ]
-        # to keep track of when a new bout starts, i see when opp changes
-        self.curOppNameId = ''
-        self.prevOppNameId = ''
-        self.engagementsThisBout = 0
-        self.totalEngagementsPlayed = 0
-        self.boutsThisRRT = 0
-        self.numOthers  = 0
-        self.numRRTPlayed = 0
-        print "player rr3 ini:"
-
-    def makeYourMove (self):
-        r = random.random()    # uniform( 0.0, 1.0 ]
-        if r < self.strategy[0]:
-            move = 'R'
-        elif r < self.strategy[1]:
-            move = 'P'
-        else:
-            move = 'S'
-        print "move=" + move
-        return move
-
-
-    def yourOpponentsId(self, lastname_id):
-        '''
-        Handler for being informed of opponent's identity.
-           incement counts at start of event
-           numOthers is number of other players
-           oppsThisRRT is number  of opp agents played in curRRT
-           numRRTPlayed is number of RRTs completed
-        '''
-        print "---------------------------\nyourOppId is ..." + lastname_id
-        if self.totalEngagementsPlayed == 0:   # first eengage,bout.rrt!
-            self.numOthers = len(self.tournament.player_pool) - 1
-            print "First engagement of 1st  bout of first rrt; numOthers={0}".format(self.numOthers)
-            self.totalEngagementsPlayed = 1
-            self.oppsThisRRT = 1
-            self.numRRTPlayed += 1
-            self.engagementsThisBout = 1
-            self.curOppNameId = lastname_id
-
-        elif self.oppsThisRRT == self.numOthers:
-                # played everyonr once,  so startong new rrt
-            print "played all {0} others in rrt {1}. start new rrt...".format(\
-                    self.numOthers, self.numRRTPlayed  )
-            self.oppsThisRRT = 1
-            self.numRRTPlayed += 1
-            self.engagementsThisBout = 1
-            self.totalEngagementsPlayed += 1
-            self.prevOppNameId = self.curOppNameId
-            self.curOppNameId = lastname_id
-
-        elif lastname_id != self.curOppNameId :
-            # new opp, new bout,
-            self.prevOppNameId = self.curOppNameId
-            self.curOppNameId = lastname_id
-            self.engagementsThisBout = 1
-            self.oppsThisRRT += 1
-            self.totalEngagementsPlayed += 1
-
-        else:
-            #  same last name  , so just another enngagenment
-            self.engagementsThisBout += 1
-            self.totalEngagementsPlayed += 1
-
-        print "numRRTplayed={0}, numOppThisRRT={1}, opp={2}, engThisBout={3}, toteng={4}".format (\
-    self.numRRTPlayed,self.oppsThisRRT,self.curOppNameId,self.engagementsThisBout,self.totalEngagementsPlayed)
-
-    # ask the tournanent for the information so you can make a SINGLE list with
-    # with  GameRecords for every engagement, in order. So you basicaly have
-    # to combine one or more lists into one list.
-    # The list you need to comibine are:
-    #    engagement_history = []  - a list wit records from the currentRRT
-    #    rrthistories = {}  - a dictionary whose keys are RRT numbers (0,1,...)
-    # each of which maps to a list with all the GRs from the RRT with
-    # that  number.  So to combine all those conceptually
-    # 0. create fields  in Player.py (why there?) to keep track of
-    #     the rrthistories, the current list of GRs AND one thqt
-    #      will hold the full list uyou construct.
-    # 1. get the dictionary of lists and loop over the RRT#s, the keys to the
-    #    ditionary.   google eg python dictionary keys
-    #  2. google python list combine append concatenate
-    #  3. after you loop over the completed lists  of rrts,
-    #     appenf the current rrt.
-    # Note it will probably b easier to rebuilt the w hile list
-    # from scratch each move then try to append the correct new moves.
-    ##
-    #
-    #
-
-
-
 ##################################################################
 # to test, run as follows
 #     python entrants/playersRiolo.py
 
+class  PlayerR4( Player ):
+    def __init__( self ):
+        # Set name and number, then call parent constructor.
+        name = "riolo"
+        number = "4"
+        super(PlayerR4, self).__init__(name, number)
+        self.oppfreqR = 0.0
+        self.oppfreqP = 0.0
+        self.oppfreqS = 0.0
+        self.strategy = [ 0.2, 0.5]
+        self.defaultStrategy = [ 0.2, 0.5]
+        
+        
+    def yourOpponentsId(self, lastname_id):
+        '''
+        Handler for being informed of opponent's identity.
+        '''
+        self.oppId = lastname_id
+        print "{0} playing {1}".format( self.name_id, self.oppId )
 
-if __name__ == "__main__":
-    p0 = PlayerR2()
-    print(p0.identifyYourself())
-    print(p0.makeYourMove())
+    def makePureRandomMove(self):
+        '''
+        Make an equal probability random move.
+        '''
+        r = random.random()    # uniform( 0.0, 1.0 ]
+        if r < self.strategy[0]:
+            return 'R'
+        elif r < self.strategy[1]:
+            return 'P'
+        else:
+            return 'S'
 
-    p0 = PlayerR3()
-    print(p0.identifyYourself())
-    print(p0.makeYourMove())
+    def makeYourMove (self):
+        # collect some info about my opponent
+        self.processHistory( )
+        print "ofrR={0}, ofrP={1}, ofrS={2}".format(\
+           self.oppfreqR, self.oppfreqP, self.oppfreqS )
+        
+        '''
+        If we've played at least one tournament entirely,
+        then let's use our "adaptive" strategy to make our move.
+        '''
+        if len(self.tournament.get_rrthistories()) > 0:
+            if self.oppfreqR > self.oppfreqP and self.oppfreqR > self.oppfreqS:
+                print('R most likely')
+                return 'P'
+            elif self.oppfreqP > self.oppfreqR and self.oppfreqP > self.oppfreqS:
+                print('P most likely')
+                return 'S'
+            elif self.oppfreqS > self.oppfreqR and self.oppfreqS > self.oppfreqP:
+                print('S most likely')
+                return 'R'
+            else:
+                print('WILDCARD')
+                return self.makePureRandomMove()
+        else:
+            '''
+            Otherwise, we're in our first tournament and we don't have enough
+            information to use our adaptive strategy.  Let's just play
+            equal probability throws.
+            '''
+            return self.makePureRandomMove()            
 
-
-
+    def processHistory( self ):
+        # as a test, get all opps  past moves
+        # these are terriuble var names
+        # reprocessing all the data each move is silly
+        allpastHist = self.tournament.get_rrthistories()
+        
+        if len(allpastHist) == 0:
+            return
+        curhist = self.tournament.get_engagement_history()
+        totrecs = 0
+        self.allrecs = []
+        for r in allpastHist.keys():
+            h = allpastHist[r]   # h is list of ga,me records
+            totrecs += len( h )
+            alist = [rec for rec in h if rec.aNameId == self.oppId ]
+            self.allrecs = self.allrecs + alist
+            print "rrt {2}: alist len={0} of h len={1}".format(len(alist), len(h), str(r))
+        numallrecs = len(self.allrecs)
+        print "#Rec with {0} as playerA={1} / total {2}".format(\
+          self.oppId, numallrecs, totrecs )
+        # count opps moves
+        numR = 0
+        numP = 0
+        numS = 0
+        for rec in self.allrecs :  
+            if rec.aMove == 'R':
+                numR  += 1
+            elif rec.aMove == 'P':
+                numP += 1
+            else:
+                numS += 1
+                
+        if numallrecs > 0: 
+           self.oppfreqR = float(numR) / numallrecs
+           self.oppfreqP = float(numP) / numallrecs
+           self.oppfreqS = float(numS) / numallrecs
+        else:
+           self.oppfreqR = 0.0
+           self.oppfreqP = 0.0
+           self.oppfreqS = 0.0
+           
