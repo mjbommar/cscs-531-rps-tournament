@@ -212,23 +212,19 @@ class Tournament(object):
         history_data = []
         for tournament_key in sorted(rrt_history.keys()):
             engagement_counter = 0
-            seen_list = []
             for engagement in rrt_history[tournament_key]:
-                player_tuple = (engagement.aNameId, engagement.bNameId)
-                if player_tuple in seen_list:
-                    continue
+                if engagement_counter % 2 == 0:
+                    history_row = [tournament_key,
+                                   engagement_counter / 2,
+                                   engagement.aNameId,
+                                   engagement.aMove,
+                                   engagement.aScore,
+                                   engagement.bNameId,
+                                   engagement.bMove,
+                                   engagement.bScore]
+                    
+                    history_data.append(history_row)
                 
-                history_row = [tournament_key,
-                               engagement_counter,
-                               engagement.aNameId,
-                               engagement.aMove,
-                               engagement.aScore,
-                               engagement.bNameId,
-                               engagement.bMove,
-                               engagement.bScore]
-                
-                history_data.append(history_row)
-                seen_list.append(player_tuple)
                 engagement_counter += 1
         
         # Write data out
