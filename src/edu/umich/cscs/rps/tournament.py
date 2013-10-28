@@ -4,6 +4,7 @@
 '''
 
 # Load standard packages
+import csv
 import itertools
 import os
 import random
@@ -200,6 +201,44 @@ class Tournament(object):
 
             # Round robin is over, store history key by RTT number
             self.rrthistories[rrt] = self.engagement_history
+        
+        # Now output final history
+        self.output_history()
+
+    def output_history(self):
+        rrt_history = self.get_rrthistories()
+        
+        # Build row output
+        history_data = []
+        for tournament_key in sorted(rrt_history.keys()):
+            engagement_counter = 0
+            seen_list = []
+            for engagement in rrt_history[tournament_key]:
+                player_tuple = (engagement.aNameId, engagement.bNameId)
+                if player_tuple in seen_list:
+                    continue
+                
+                history_row = [tournament_key,
+                               engagement_counter,
+                               engagement.aNameId,
+                               engagement.aMove,
+                               engagement.aScore,
+                               engagement.bNameId,
+                               engagement.bMove,
+                               engagement.bScore]
+                
+                history_data.append(history_row)
+                seen_list.append(player_tuple)
+                engagement_counter += 1
+        
+        # Write data out
+        csv_writer = csv.writer(open('results.csv', 'w'))
+        csv_writer.writerow(('RTT_Number', 'Engagement_Number',
+                             'aNameId', 'aMove', 'aScore',
+                             'bNameId', 'bMove', 'bScore'))
+        csv_writer.writerows(history_data)
+            
+            
 
     def __repr__(self):
         '''
