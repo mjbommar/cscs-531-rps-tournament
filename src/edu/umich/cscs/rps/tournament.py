@@ -199,7 +199,7 @@ class Tournament(object):
                 # Get players
                 self.run_bout(player_a, player_b)
 
-            # Round robin is over, store history key by RTT number
+            # Round robin is over, store history key by RRT number
             self.rrthistories[rrt] = self.engagement_history
         
         # Now output final history
@@ -229,7 +229,7 @@ class Tournament(object):
         
         # Write data out
         csv_writer = csv.writer(open('results.csv', 'w'))
-        csv_writer.writerow(('RTT_Number', 'Engagement_Number',
+        csv_writer.writerow(('RRT_Number', 'Engagement_Number',
                              'aNameId', 'aMove', 'aScore',
                              'bNameId', 'bMove', 'bScore'))
         csv_writer.writerows(history_data)
