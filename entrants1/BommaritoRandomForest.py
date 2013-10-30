@@ -20,6 +20,8 @@ class BommaritoRandomForest(Player):
     current_prediction = None
     random_forest_classifier = None
     
+    # Parameters
+    score_threshold = 0.15
     
     def __init__(self):
         '''
@@ -48,7 +50,7 @@ class BommaritoRandomForest(Player):
         else:
             return 'S'
     
-    def make_feature_record(self, engagement, engagement_history):
+    def make_feature_record(self, engagement, engagement_history, opponent):
         '''
         Get a feature record from the individual engagement
         and the entire engagement history up to then.
@@ -62,7 +64,7 @@ class BommaritoRandomForest(Player):
         move_counts = {'R': 0, 'P': 0, 'S': 0}
         score_counts = {'R': 0.0, 'P': 0.0, 'S': 0.}
         for game in engagement_history:
-            if game.aNameId == self.current_opponent:
+            if game.aNameId == opponent:
                 engagement_count += 1
                 score_total += game.aScore
                 score_counts[game.aMove] += game.aScore
@@ -122,7 +124,9 @@ class BommaritoRandomForest(Player):
             for engagement in past_engagements[tournament_key]:
                 if engagement.aNameId == self.current_opponent:
                     opponent_engagement_list.append(engagement)
-                    feature_list.append(self.make_feature_record(engagement, engagement_list))
+                    feature_row = self.make_feature_record(engagement, engagement_list, engagement.aNameId)
+                    #feature_row.extend(self.make_feature_record(engagement, engagement_list, engagement.bNameId))
+                    feature_list.append(feature_row)
                     target_list.append(engagement.aMove)
                 engagement_list.append(engagement)
         
@@ -130,7 +134,9 @@ class BommaritoRandomForest(Player):
         for engagement in current_engagements:
             if engagement.aNameId == self.current_opponent:
                 opponent_engagement_list.append(engagement)
-                feature_list.append(self.make_feature_record(engagement, engagement_list))
+                feature_row = self.make_feature_record(engagement, engagement_list, engagement.aNameId)
+                #feature_row.extend(self.make_feature_record(engagement, engagement_list, engagement.bNameId))
+                feature_list.append(feature_row)
                 target_list.append(engagement.aMove)
             engagement_list.append(engagement)
         
@@ -145,7 +151,7 @@ class BommaritoRandomForest(Player):
                 self.current_prediction = {'R': 0.0, 'P': 0.0, 'S': 1.0}
         elif len(target_list) > 10:
             # Otherwise, if we have some variance and samples, run an RFC.
-            self.random_forest_classifier = sklearn.ensemble.RandomForestClassifier(n_estimators=25)
+            self.random_forest_classifier = sklearn.ensemble.RandomForestClassifier(n_estimators=50)
             self.random_forest_classifier.fit(feature_list, target_list)
             #test_targets = random_forest_classifier.predict(feature_list)
             #print(sklearn.metrics.classification_report(target_list, test_targets))
@@ -167,7 +173,7 @@ class BommaritoRandomForest(Player):
         # Update history and model
         self.process_history()
         
-        threshold = 0.25
+        threshold = self.score_threshold
         
         # Make our move based on samples
         if self.current_prediction is not None:
