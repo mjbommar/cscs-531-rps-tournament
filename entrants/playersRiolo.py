@@ -31,7 +31,6 @@ class  PlayerR4( Player ):
         Handler for being informed of opponent's identity.
         '''
         self.oppId = lastname_id
-        print "{0} playing {1}".format( self.name_id, self.oppId )
 
     def makePureRandomMove(self):
         '''
@@ -48,25 +47,20 @@ class  PlayerR4( Player ):
     def makeYourMove (self):
         # collect some info about my opponent
         self.processHistory( )
-        print "ofrR={0}, ofrP={1}, ofrS={2}".format(\
-           self.oppfreqR, self.oppfreqP, self.oppfreqS )
+
         
         '''
         If we've played at least one tournament entirely,
         then let's use our "adaptive" strategy to make our move.
         '''
-        if len(self.tournament.get_rrthistories()) > 0:
+        if len(self.tournament.get_rrt_histories()) > 0:
             if self.oppfreqR > self.oppfreqP and self.oppfreqR > self.oppfreqS:
-                print('R most likely')
                 return 'P'
             elif self.oppfreqP > self.oppfreqR and self.oppfreqP > self.oppfreqS:
-                print('P most likely')
                 return 'S'
             elif self.oppfreqS > self.oppfreqR and self.oppfreqS > self.oppfreqP:
-                print('S most likely')
                 return 'R'
             else:
-                print('WILDCARD')
                 return self.makePureRandomMove()
         else:
             '''
@@ -80,7 +74,7 @@ class  PlayerR4( Player ):
         # as a test, get all opps  past moves
         # these are terriuble var names
         # reprocessing all the data each move is silly
-        allpastHist = self.tournament.get_rrthistories()
+        allpastHist = self.tournament.get_rrt_histories()
         
         if len(allpastHist) == 0:
             return
@@ -92,10 +86,9 @@ class  PlayerR4( Player ):
             totrecs += len( h )
             alist = [rec for rec in h if rec.aNameId == self.oppId ]
             self.allrecs = self.allrecs + alist
-            print "rrt {2}: alist len={0} of h len={1}".format(len(alist), len(h), str(r))
+
         numallrecs = len(self.allrecs)
-        print "#Rec with {0} as playerA={1} / total {2}".format(\
-          self.oppId, numallrecs, totrecs )
+
         # count opps moves
         numR = 0
         numP = 0

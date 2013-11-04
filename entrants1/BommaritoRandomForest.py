@@ -4,8 +4,8 @@
 '''
 
 import numpy.random
-import sklearn.ensemble
-import sklearn.metrics
+import sklearn
+import sklearn
 from edu.umich.cscs.rps.agents import Player
 
 

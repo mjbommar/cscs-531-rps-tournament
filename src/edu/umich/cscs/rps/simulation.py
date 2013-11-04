@@ -8,7 +8,6 @@ Created on Nov 3, 2013
 import os
 
 # Tournament imports
-import edu.umich.cscs.rps.tournament
 from edu.umich.cscs.rps.tournament import Tournament
 
 
@@ -31,7 +30,7 @@ class Simulation(object):
         # Ensure the directory exists
         try:
             os.makedirs(self.output_path)
-        except Exception, E:
+        except OSError:
             pass
 
         # Iterate over epb and num_rtt values

@@ -6,17 +6,13 @@
 # Load standard packages
 import csv
 import itertools
+import operator
 import os
 import random
 import sys
-from operator import itemgetter, attrgetter
 
 # Load our agents module
 import edu.umich.cscs.rps.agents
-
-################################################################
-#
-##############################################################
 
 
 class Tournament(object):
@@ -29,22 +25,22 @@ class Tournament(object):
 
     # History of engagements
     engagement_history = []
-    rrthistories = {}
+    rrt_histories = {}
 
     # Can you play your own agents?
     play_self = False
-    
+
     # Path to result output
     results_path = 'results'
 
     def __init__(self, entrant_path='entrants', engagements_per_bout=21,
-                 numRRTs=11, play_self=False, results_path='results'):
+                 num_rrt=11, play_self=False, results_path='results'):
         '''
         Constructor
         '''
         # Set parameters
         self.engagements_per_bout = engagements_per_bout
-        self.numRRTs = numRRTs
+        self.num_rrt = num_rrt
         self.play_self = play_self
         self.results_path = results_path
 
@@ -113,10 +109,8 @@ class Tournament(object):
 
         # Load all the files in path
         for file_name in os.listdir(path):
-            print("File {0} ============".format(file_name))
             # Skip non-py files
             if not file_name.lower().endswith('.py'):
-                print "   skipping..."
                 continue
 
             # Get module name
@@ -127,12 +121,11 @@ class Tournament(object):
 
             # Now iterate over module contents.
             for object_name in dir(sys.modules[module_name]):
-                # print "-->object {0}, module {1}:".format (object_name, module_name )
                 object_value = getattr(sys.modules[module_name], object_name)
                 try:
                     # Instantiate.
                     object_instance = object_value()
-                    # print "--> instance {0} ".format ( object_instance )
+
                     # If the variable matches the Player class type, include.
                     if isinstance(object_instance,
                                   edu.umich.cscs.rps.agents.Player):
@@ -140,8 +133,7 @@ class Tournament(object):
                         object_instance.tournament = self
                         # Add to list
                         player_list.append(object_instance)
-                except Exception, E:
-                    # print "--> not added to player list"
+                except Exception:
                     pass
 
         # Return the player list
@@ -153,21 +145,19 @@ class Tournament(object):
         '''
         return self.engagement_history
 
-    def get_rrthistories(self):
+    def get_rrt_histories(self):
         '''
-        Return the
+        Return the histories.
         '''
-        return self.rrthistories
+        return self.rrt_histories
 
-    def printAllTotalScores(self):
+    def print_total_scores(self):
         '''
-        print total scores for all entrants.
-        TODO: sort ex
-        >>> from operator import itemgetter, attrgetter
-        >>> sorted(student_objects, key=attrgetter('age'))
+        Print total scores for all players.
         '''
         # for p in self.player_pool :
-        for p in sorted(self.player_pool, key=attrgetter('total_score')):
+        for p in sorted(self.player_pool,
+                        key=operator.attrgetter('total_score')):
             print(p)
 
     def run_bout(self, player_a, player_b):
@@ -191,8 +181,8 @@ class Tournament(object):
           engagement history
         '''
 
-        for rrt in range(self.numRRTs):
-            print "rrt {0} of {1}".format(rrt, self.numRRTs)
+        for rrt in range(self.num_rrt):
+            print "rrt {0} of {1}".format(rrt, self.num_rrt)
             self.engagement_history = []
 
             # Get a round robin pair list.
@@ -204,20 +194,25 @@ class Tournament(object):
                 self.run_bout(player_a, player_b)
 
             # Round robin is over, store history key by RRT number
-            self.rrthistories[rrt] = self.engagement_history
-        
+            self.rrt_histories[rrt] = self.engagement_history
+
         # Now output final history
         self.output_history()
 
     def output_history(self):
-        rrt_history = self.get_rrthistories()
-        
+        '''
+        Output the complete history of a tournament.
+        '''
+        rrt_history = self.get_rrt_histories()
+
         # Build row output
         history_data = []
         for tournament_key in sorted(rrt_history.keys()):
             engagement_counter = 0
+            # Iterate over all tournmanets
             for engagement in rrt_history[tournament_key]:
                 if engagement_counter % 2 == 0:
+                    # Only output even rows
                     history_row = [tournament_key,
                                    engagement_counter / 2,
                                    engagement.aNameId,
@@ -234,9 +229,10 @@ class Tournament(object):
         # Write data out
         try:
             os.makedirs(self.results_path)
-        except Exception, E:
+        except Exception:
             pass
 
+        # Output results to a CSV file in the specified path.
         results_file = os.path.join(self.results_path, 'results.csv')
         csv_writer = csv.writer(open(results_file, 'w'))
         csv_writer.writerow(('RRT_Number', 'Engagement_Number',
@@ -252,64 +248,68 @@ class Tournament(object):
             .format(len(self.player_pool), len(self.engagement_history))
 
 
-# a function!
-def processCmdLineArgs(args):
-    # Process command line arguments of the form
-        #   parName=value | -h | --help
-    epath = 'entrants/'
-    epb = 21
-    numRRTs = 5
+def output_help():
+    '''
+    TODO: Output help.
+    '''
+
+
+def process_cmd_args(args):
+    '''
+    Process command line arguments.
+    '''
+    # Set default arguments
+    entrant_path = 'entrants/'
+    engagements_per_bout = 21
+    num_rrt = 5
     play_self = False
-    
+
+    # Iterate over args
     for arg in args:
+        # Output help
         if arg == '-h' or arg == '--help':
-            help()
-            quit()
+            output_help()
+            sys.exit(0)
+
         # Split about the equal sign, into name and value of the argument.
-        arg = arg.split('=')
-        name = arg[0]
-        value = arg[1]
-        # print  "arg='%s' name='%s'  value='%s'\n" % (arg, name, value )
+        tokens = arg.split('=')
+        name = tokens[0]
+        value = tokens[1]
+
+        # Setup switch/case statement by argument
         if name == 'numRRTs' or name == 'N':
-            numRRTs = int(value)
+            num_rrt = int(value)
         elif name == 'ep' or name == 'entrant_path':
-            epath = value
+            entrant_path = value
         elif name == 'epb' or name == 'engagements_per_bout':
-            epb = int (value)
+            engagements_per_bout = int(value)
         elif name == 'ps' or name == 'play_self':
             play_self = bool(value)
         else:
-            print  " Unknown name in arg='%s'name='%s' value='%s'\n" % (arg, name, value)
-            help()
-    return [ epath, epb, numRRTs, play_self ]
+            print  " Unknown name in arg='%s'name='%s' value='%s'\n" % \
+                (arg, name, value)
+            output_help()
+
+    # Return rows
+    return [entrant_path, engagements_per_bout, num_rrt, play_self]
 
 
-def help():
-    print "TODO ..fill in help .should do first..."
-
-#########################
-
-###########################################################
-#
-#
 if __name__ == "__main__":
+    # Process command line arguments
+    entrant_path, engagements_per_bout, num_rrt, play_self = \
+        process_cmd_args(sys.argv[1:])
 
-    # print  str( sys.argv )   # for cmd line parameters
-    parlist = processCmdLineArgs(sys.argv[1:])
-    # parlist has entrantpath, eng/bout and numrrts
-    epath = parlist[0]
-    epb = parlist[1]
-    rrts = parlist[2]
-    play_self = parlist[3]
-
-    tourney = Tournament(entrant_path=epath, engagements_per_bout=epb,
-                         numRRTs=rrts, play_self=play_self)
+    # Create tournament
+    tournament = Tournament(entrant_path=entrant_path,
+                         engagements_per_bout=engagements_per_bout,
+                         num_rrt=num_rrt,
+                         play_self=play_self)
 
     print("\nThe players:")
-    tourney.printAllTotalScores()
-    tourney.run_tournament()
+    tournament.print_total_scores()
+    tournament.run_tournament()
 
     print("\nFinal scores:")
-    tourney.printAllTotalScores()
+    tournament.print_total_scores()
 
     print("All done.")
