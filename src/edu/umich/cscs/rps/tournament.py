@@ -33,9 +33,12 @@ class Tournament(object):
 
     # Can you play your own agents?
     play_self = False
+    
+    # Path to result output
+    results_path = 'results'
 
     def __init__(self, entrant_path='entrants', engagements_per_bout=21,
-                 numRRTs=11, play_self=False):
+                 numRRTs=11, play_self=False, results_path='results'):
         '''
         Constructor
         '''
@@ -43,6 +46,7 @@ class Tournament(object):
         self.engagements_per_bout = engagements_per_bout
         self.numRRTs = numRRTs
         self.play_self = play_self
+        self.results_path = results_path
 
         # Load players
         self.player_pool = self.load_entrants(entrant_path)
@@ -222,19 +226,23 @@ class Tournament(object):
                                    engagement.bNameId,
                                    engagement.bMove,
                                    engagement.bScore]
-                    
+
                     history_data.append(history_row)
-                
+
                 engagement_counter += 1
-        
+
         # Write data out
-        csv_writer = csv.writer(open('results.csv', 'w'))
+        try:
+            os.makedirs(self.results_path)
+        except Exception, E:
+            pass
+
+        results_file = os.path.join(self.results_path, 'results.csv')
+        csv_writer = csv.writer(open(results_file, 'w'))
         csv_writer.writerow(('RRT_Number', 'Engagement_Number',
                              'aNameId', 'aMove', 'aScore',
                              'bNameId', 'bMove', 'bScore'))
         csv_writer.writerows(history_data)
-            
-            
 
     def __repr__(self):
         '''
